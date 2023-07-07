@@ -24,7 +24,7 @@ import javax.validation.Valid;
 @Slf4j
 public class UserController {
     private int id = 0;
-    private Map<Integer, User> users = new HashMap<>();
+    private final Map<Integer, User> users = new HashMap<>();
 
     @GetMapping
     public List<User> findAll() {

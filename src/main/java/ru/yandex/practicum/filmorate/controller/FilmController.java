@@ -25,7 +25,7 @@ import javax.validation.Valid;
 @Slf4j
 public class FilmController {
     private int id = 0;
-    private Map<Integer, Film> films = new HashMap<>();
+    private final Map<Integer, Film> films = new HashMap<>();
 
     @GetMapping
     public List<Film> findAll() {
