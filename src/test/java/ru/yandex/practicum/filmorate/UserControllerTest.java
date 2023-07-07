@@ -26,14 +26,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 public class UserControllerTest {
 
-    private final String MAPP = "/users";
+    private final String query = "/users";
 
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mockMvc;
 
-    private User user = User.builder()
+    private final User user = User.builder()
             .id(1)
             .login("login")
             .email("my@mail.ru")
@@ -43,12 +43,12 @@ public class UserControllerTest {
 
     @AfterEach
     public void clean() throws Exception {
-        mockMvc.perform(delete(MAPP));
+        mockMvc.perform(delete(query));
     }
 
     @Test
     public void shouldAddAndReturnUsers() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -57,7 +57,7 @@ public class UserControllerTest {
         List<User> users = new ArrayList<>();
         users.add(user);
 
-        mockMvc.perform(get(MAPP))
+        mockMvc.perform(get(query))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(users)));
     }
@@ -65,7 +65,7 @@ public class UserControllerTest {
     @Test
     public void shouldAddUserWithEmptyName() throws Exception {
         user.setName("");
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -74,13 +74,13 @@ public class UserControllerTest {
 
     @Test
     public void shouldNotAddDuplicateUsers() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(user)));
 
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(500));
@@ -89,7 +89,7 @@ public class UserControllerTest {
     @Test
     public void shouldNotAddUserWithEmptyLogin() throws Exception {
         user.setLogin("");
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -98,7 +98,7 @@ public class UserControllerTest {
     @Test
     public void shouldNotAddUserFromFuture() throws Exception {
         user.setBirthday(LocalDate.now().plusDays(1));
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -107,7 +107,7 @@ public class UserControllerTest {
     @Test
     public void shouldNotAddUserWithNullBirthday() throws Exception {
         user.setBirthday(null);
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -115,7 +115,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldUpdateUser() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -123,7 +123,7 @@ public class UserControllerTest {
 
         user.setName("NAME");
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -132,7 +132,7 @@ public class UserControllerTest {
         List<User> users = new ArrayList<>();
         users.add(user);
 
-        mockMvc.perform(get(MAPP))
+        mockMvc.perform(get(query))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(users)));
 
@@ -140,7 +140,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldNotUpdateUnknownUser() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -148,7 +148,7 @@ public class UserControllerTest {
 
         user.setId(50);
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(500));
@@ -156,7 +156,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldNotUpdateFilmWithEmptyLogin() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -164,7 +164,7 @@ public class UserControllerTest {
 
         user.setLogin("");
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -172,7 +172,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldNotUpdateUserFromFuture() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -180,7 +180,7 @@ public class UserControllerTest {
 
         user.setBirthday(LocalDate.now().plusDays(1));
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -188,7 +188,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldNotUpdateFilmWithNullReleaseDate() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -196,7 +196,7 @@ public class UserControllerTest {
 
         user.setBirthday(null);
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));

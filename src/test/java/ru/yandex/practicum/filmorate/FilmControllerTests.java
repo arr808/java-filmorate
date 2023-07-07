@@ -26,14 +26,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 public class FilmControllerTests {
 
-    private final String MAPP = "/films";
+    private final String query = "/films";
 
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mockMvc;
 
-    private Film film = Film.builder()
+    private final Film film = Film.builder()
             .id(1)
             .name("Name")
             .description("Description")
@@ -43,12 +43,12 @@ public class FilmControllerTests {
 
     @AfterEach
     public void clean() throws Exception {
-        mockMvc.perform(delete(MAPP));
+        mockMvc.perform(delete(query));
     }
 
     @Test
     public void shouldAddAndReturnFilms() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                 .content(objectMapper.writeValueAsString(film))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -57,20 +57,20 @@ public class FilmControllerTests {
         List<Film> films = new ArrayList<>();
         films.add(film);
 
-        mockMvc.perform(get(MAPP))
+        mockMvc.perform(get(query))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(films)));
     }
 
     @Test
     public void shouldNotAddDuplicateFilms() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(film)));
 
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(500));
@@ -79,7 +79,7 @@ public class FilmControllerTests {
     @Test
     public void shouldNotAddFilmWithEmptyName() throws Exception {
         film.setName("");
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -88,7 +88,7 @@ public class FilmControllerTests {
     @Test
     public void shouldAddFilmWithDescriptionSize200() throws Exception {
         film.setDescription("W".repeat(200));
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -98,7 +98,7 @@ public class FilmControllerTests {
     @Test
     public void shouldNotAddFilmWithDescriptionSizeMore200() throws Exception {
         film.setDescription("W".repeat(201));
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -107,7 +107,7 @@ public class FilmControllerTests {
     @Test
     public void shouldNotAddFilmWithEmptyDescription() throws Exception {
         film.setDescription("");
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -116,7 +116,7 @@ public class FilmControllerTests {
     @Test
     public void shouldAddFilmWithReleaseDate1895_12_28() throws Exception {
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -126,7 +126,7 @@ public class FilmControllerTests {
     @Test
     public void shouldNotAddFilmWithWrongReleaseDate() throws Exception {
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(500));
@@ -135,7 +135,7 @@ public class FilmControllerTests {
     @Test
     public void shouldNotAddFilmFromFuture() throws Exception {
         film.setReleaseDate(LocalDate.now().plusDays(1));
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -144,7 +144,7 @@ public class FilmControllerTests {
     @Test
     public void shouldNotAddFilmWithNullReleaseDate() throws Exception {
         film.setReleaseDate(null);
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -153,7 +153,7 @@ public class FilmControllerTests {
     @Test
     public void shouldNotAddFilmWithZeroDuration() throws Exception {
         film.setDuration(0);
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -162,7 +162,7 @@ public class FilmControllerTests {
     @Test
     public void shouldNotAddFilmWithNegativeDuration() throws Exception {
         film.setDuration(-1);
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -170,7 +170,7 @@ public class FilmControllerTests {
 
     @Test
     public void shouldUpdateFilm() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -178,7 +178,7 @@ public class FilmControllerTests {
 
         film.setDuration(50);
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -187,7 +187,7 @@ public class FilmControllerTests {
         List<Film> films = new ArrayList<>();
         films.add(film);
 
-        mockMvc.perform(get(MAPP))
+        mockMvc.perform(get(query))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(films)));
 
@@ -195,7 +195,7 @@ public class FilmControllerTests {
 
     @Test
     public void shouldNotUpdateUnknownFilm() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -203,7 +203,7 @@ public class FilmControllerTests {
 
         film.setId(50);
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(500));
@@ -211,7 +211,7 @@ public class FilmControllerTests {
 
     @Test
     public void shouldNotUpdateFilmWithEmptyName() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -219,7 +219,7 @@ public class FilmControllerTests {
 
         film.setName("");
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -227,7 +227,7 @@ public class FilmControllerTests {
 
     @Test
     public void shouldNotUpdateFilmWithDescriptionSizeMore200() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -235,7 +235,7 @@ public class FilmControllerTests {
 
         film.setDescription("W".repeat(201));
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -243,7 +243,7 @@ public class FilmControllerTests {
 
     @Test
     public void shouldNotUpdateFilmWithEmptyDescription() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -251,7 +251,7 @@ public class FilmControllerTests {
 
         film.setDescription("");
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -259,7 +259,7 @@ public class FilmControllerTests {
 
     @Test
     public void shouldNotUpdateFilmWithWrongReleaseDate() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -267,7 +267,7 @@ public class FilmControllerTests {
 
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(500));
@@ -275,7 +275,7 @@ public class FilmControllerTests {
 
     @Test
     public void shouldNotUpdateFilmFromFuture() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -283,7 +283,7 @@ public class FilmControllerTests {
 
         film.setReleaseDate(LocalDate.now().plusDays(1));
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -291,7 +291,7 @@ public class FilmControllerTests {
 
     @Test
     public void shouldNotUpdateFilmWithNullReleaseDate() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -299,7 +299,7 @@ public class FilmControllerTests {
 
         film.setReleaseDate(null);
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -307,7 +307,7 @@ public class FilmControllerTests {
 
     @Test
     public void shouldNotUpdateFilmWithZeroDuration() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -315,7 +315,7 @@ public class FilmControllerTests {
 
         film.setDuration(0);
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
@@ -323,7 +323,7 @@ public class FilmControllerTests {
 
     @Test
     public void shouldNotUpdateFilmWithNegativeDuration() throws Exception {
-        mockMvc.perform(post(MAPP)
+        mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -331,7 +331,7 @@ public class FilmControllerTests {
 
         film.setDuration(-1);
 
-        mockMvc.perform(put(MAPP)
+        mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(400));
