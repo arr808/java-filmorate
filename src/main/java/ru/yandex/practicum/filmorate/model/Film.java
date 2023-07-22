@@ -31,6 +31,7 @@ public class Film {
     @JsonIgnore
     private final Set<Integer> likes = new HashSet<>();
 
+    @JsonIgnore
     public int getLikeCount() {
         return likes.size();
     }

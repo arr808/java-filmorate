@@ -397,7 +397,7 @@ public class FilmControllerTests {
     }
 
     @Test
-    public void shouldNotAddLikeToUnknownFillm() throws Exception {
+    public void shouldNotAddLikeToUnknownFilm() throws Exception {
         User user = User.builder()
                 .id(1)
                 .login("login")
@@ -415,7 +415,7 @@ public class FilmControllerTests {
     }
 
     @Test
-    public void shouldRerurnMostPopular() throws Exception {
+    public void shouldReturnMostPopular() throws Exception {
         User user = User.builder()
                 .id(1)
                 .login("login")
@@ -452,7 +452,7 @@ public class FilmControllerTests {
 
         popularFilms.add(film);
 
-        mockMvc.perform(get(query + "/popular?count=1"))
+        mockMvc.perform(get(query + "/popular?count"))
                 .andExpect(status().is(200))
                 .andExpect(content().json(objectMapper.writeValueAsString(popularFilms)));
     }
