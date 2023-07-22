@@ -1,17 +1,22 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import ru.yandex.practicum.filmorate.custom_exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.custom_exceptions.AlreadyExistException;
+import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 @Service
+@Slf4j
 public class UserService {
 
     private int id;
@@ -43,7 +48,10 @@ public class UserService {
 
     public User getById(int id) {
         User user = userStorage.getById(id);
-        if (user == null) throw new ValidationException(String.format("Пользователь с id: %d не найден", id));
+        if (user == null) {
+            log.warn("Не найден пользователь c id - {}", id);
+            throw new NotFoundException("user");
+        }
         return user;
     }
 
@@ -51,22 +59,27 @@ public class UserService {
         User user = getById(userId);
         User friend = getById(friendId);
         user.getFriends().add(friendId);
+        log.debug("Пользователю - {} добавлен в друзья {}", user, friend);
         friend.getFriends().add(userId);
+        log.debug("Пользователю - {} добавлен в друзья {}", friend, user);
     }
 
     public void deleteFriend(int userId, int friendId) {
         User user = getById(userId);
         User friend = getById(friendId);
         user.getFriends().remove(friendId);
+        log.debug("У пользователюя- {} удален друг {}", user, friend);
         friend.getFriends().remove(userId);
+        log.debug("У пользователюя- {} удален друг {}", friend, user);
     }
 
     public List<User> getFriends(int id) {
         User user = getById(id);
-        List<User> friends = null;
+        List<User> friends = new ArrayList<>();
         for (int friendId : user.getFriends()) {
             friends.add(getById(friendId));
         }
+        log.trace("Отправлен список друзей {} пользователя {}", friends, user);
         return friends;
     }
 
@@ -74,13 +87,15 @@ public class UserService {
         Set<Integer> userFriends = getById(id).getFriends();
         Set<Integer> otherUserFriends = getById(id).getFriends();
         List<Integer> friendIds;
-        List<User> commonFriends = null;
+        List<User> commonFriends = new ArrayList<>();
         if (userFriends.size() > otherUserFriends.size()) {
             friendIds = getCommon(userFriends, otherUserFriends);
         } else friendIds = getCommon(otherUserFriends, userFriends);
         for (int friendId : friendIds) {
             commonFriends.add(getById(friendId));
         }
+        log.trace("Отправлен список общих друзей {} пользователей {}, {}",
+                commonFriends, getById(id), getById(otherId));
         return commonFriends;
     }
 
@@ -90,10 +105,12 @@ public class UserService {
 
     private void validate(User user) {
         if (userStorage.getById(user.getId()) != null) {
-            throw new ValidationException("Данный пользователь уже добавлен");
+            log.warn("Пользователь {} уже добавлен", user);
+            throw new AlreadyExistException("user");
         }
 
         if (user.getName().isBlank() || user.getName() == null) {
+            log.debug("Пользователю {} в качестве имени установлен логин", user);
             user.setName(user.getLogin());
         }
     }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 
+import ru.yandex.practicum.filmorate.custom_exceptions.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -44,6 +45,8 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable int id,
                         @PathVariable int userId) {
+        if (id <= 0) throw new IncorrectParameterException("id");
+        if (userId <= 0) throw new IncorrectParameterException("userId");
         filmService.addLike(id, userId);
     }
 
@@ -55,6 +58,8 @@ public class FilmController {
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable int id,
                            @PathVariable int userId) {
+        if (id <= 0) throw new IncorrectParameterException("id");
+        if (userId <= 0) throw new IncorrectParameterException("userId");
         filmService.removeLike(id, userId);
     }
 
@@ -65,11 +70,13 @@ public class FilmController {
 
     @GetMapping("{id}")
     public Film findById(@PathVariable int id) {
+        if (id <= 0) throw new IncorrectParameterException("id");
         return filmService.getById(id);
     }
 
     @GetMapping("/popular")
     public List<Film> findPopular(@RequestParam(defaultValue = "10") int count) {
+        if (count <= 0) throw new IncorrectParameterException("count");
         return filmService.getPopular(count);
     }
 }

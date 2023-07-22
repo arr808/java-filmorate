@@ -1,18 +1,21 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ru.yandex.practicum.filmorate.custom_exceptions.AlreadyExistException;
+import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.custom_exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 @Service
+@Slf4j
 public class FilmService {
 
     private int id;
@@ -46,7 +49,10 @@ public class FilmService {
 
     public Film getById(int id) {
         Film film = filmStorage.getById(id);
-        if (film == null) throw new ValidationException("Фильм не найден");
+        if (film == null) {
+            log.warn("Не найден фильм с id - {}", id);
+            throw new NotFoundException("film");
+        }
         return film;
     }
 
@@ -54,17 +60,19 @@ public class FilmService {
         Film film = getById(filmId);
         userService.getById(userId); //проверяем что пользователь существует
         film.getLikes().add(userId);
+        log.debug("Поставлен лайк фильму - {}", film);
     }
 
     public void removeLike(int filmId, int userId) {
         Film film = getById(filmId);
         userService.getById(userId); //проверяем что пользователь существует
         film.getLikes().remove(userId);
+        log.debug("Удален лайк у фильма - {}", film);
     }
 
     public List<Film> getPopular(int size) {
         return filmStorage.getAll().stream()
-                .sorted(Comparator.comparingInt(film -> film.getLikes().size()))
+                .sorted((film1, film2) -> -1 * Integer.compare(film1.getLikes().size(), film2.getLikes().size()))
                 .limit(size)
                 .collect(Collectors.toList());
     }
@@ -75,11 +83,13 @@ public class FilmService {
 
     private void validate(Film film) {
         if (filmStorage.getById(film.getId()) != null) {
-            throw new ValidationException(String.format("Фильм %s уже добавлен", film));
+            log.warn("Фильм {} уже добавлен", film);
+            throw new AlreadyExistException("film");
         }
 
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
+            log.warn("Не корректная дата релиза фильма - {}", film);
+            throw new ValidationException("film" , "Дата релиза не может быть раньше 28 декабря 1895 года");
         }
     }
 }
