@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,10 +36,7 @@ public class FilmService {
     }
 
     public Film update(Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.warn("Не корректная дата релиза фильма - {}", film);
-            throw new ValidationException("film", "Дата релиза не может быть раньше 28 декабря 1895 года");
-        }
+        validateReleaseDate(film);
         return filmStorage.update(film);
     }
 
@@ -76,7 +74,7 @@ public class FilmService {
 
     public List<Film> getPopular(int size) {
         return filmStorage.getAll().stream()
-                .sorted((film1, film2) -> -1 * Integer.compare(film1.getLikes().size(), film2.getLikes().size()))
+                .sorted(Comparator.comparing(Film::getLikeCount).reversed())
                 .limit(size)
                 .collect(Collectors.toList());
     }
@@ -90,10 +88,13 @@ public class FilmService {
             log.warn("Фильм {} уже добавлен", film);
             throw new AlreadyExistException("film");
         }
+        validateReleaseDate(film);
+    }
 
+    private void validateReleaseDate(Film film) {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Не корректная дата релиза фильма - {}", film);
-            throw new ValidationException("film", "Дата релиза не может быть раньше 28 декабря 1895 года");
+                throw new ValidationException("film", "Дата релиза не может быть раньше 28 декабря 1895 года");
         }
     }
 }

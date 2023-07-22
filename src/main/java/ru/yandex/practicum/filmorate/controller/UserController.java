@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.Getter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +20,6 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
-@Getter
 public class UserController {
 
     private final UserService userService;
@@ -45,8 +42,8 @@ public class UserController {
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable int id,
                           @PathVariable int friendId) {
-        if (id <= 0) throw new IncorrectParameterException("id");
-        if (friendId <= 0) throw new IncorrectParameterException("friendId");
+        if (id <= 0) throw new IncorrectParameterException("id: " + id);
+        if (friendId <= 0) throw new IncorrectParameterException("friendId: " + friendId);
         userService.addFriend(id, friendId);
     }
 
@@ -58,8 +55,8 @@ public class UserController {
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable int id,
                              @PathVariable int friendId) {
-        if (id <= 0) throw new IncorrectParameterException("id");
-        if (friendId <= 0) throw new IncorrectParameterException("friendId");
+        if (id <= 0) throw new IncorrectParameterException("id: " + id);
+        if (friendId <= 0) throw new IncorrectParameterException("friendId: " + friendId);
         userService.deleteFriend(id, friendId);
     }
 
@@ -70,21 +67,21 @@ public class UserController {
 
     @GetMapping("/{id}")
     public User findGyId(@PathVariable int id) {
-        if (id <= 0) throw new IncorrectParameterException("id");
+        if (id <= 0) throw new IncorrectParameterException("id: " + id);
         return userService.getById(id);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> findFriends(@PathVariable int id) {
-        if (id <= 0) throw new IncorrectParameterException("id");
+        if (id <= 0) throw new IncorrectParameterException("id: " + id);
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable int id,
                                       @PathVariable int otherId) {
-        if (id <= 0) throw new IncorrectParameterException("id");
-        if (otherId <= 0) throw new IncorrectParameterException("otherId");
+        if (id <= 0) throw new IncorrectParameterException("id: " + id);
+        if (otherId <= 0) throw new IncorrectParameterException("otherId: " + otherId);
         return userService.getCommonFriends(id, otherId);
     }
 }

@@ -30,4 +30,8 @@ public class Film {
     private long duration;
     @JsonIgnore
     private final Set<Integer> likes = new HashSet<>();
+
+    public int getLikeCount() {
+        return likes.size();
+    }
 }

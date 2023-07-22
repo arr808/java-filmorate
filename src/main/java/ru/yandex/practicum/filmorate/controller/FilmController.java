@@ -45,8 +45,8 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable int id,
                         @PathVariable int userId) {
-        if (id <= 0) throw new IncorrectParameterException("id");
-        if (userId <= 0) throw new IncorrectParameterException("userId");
+        if (id <= 0) throw new IncorrectParameterException("id: " + id);
+        if (userId <= 0) throw new IncorrectParameterException("userId: " + userId);
         filmService.addLike(id, userId);
     }
 
@@ -58,8 +58,8 @@ public class FilmController {
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable int id,
                            @PathVariable int userId) {
-        if (id <= 0) throw new IncorrectParameterException("id");
-        if (userId <= 0) throw new IncorrectParameterException("userId");
+        if (id <= 0) throw new IncorrectParameterException("id: " + id);
+        if (userId <= 0) throw new IncorrectParameterException("userId: " + userId);
         filmService.removeLike(id, userId);
     }
 
@@ -68,15 +68,15 @@ public class FilmController {
         return filmService.getAll();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public Film findById(@PathVariable int id) {
-        if (id <= 0) throw new IncorrectParameterException("id");
+        if (id <= 0) throw new IncorrectParameterException("id: " + id);
         return filmService.getById(id);
     }
 
     @GetMapping("/popular")
     public List<Film> findPopular(@RequestParam(defaultValue = "10") int count) {
-        if (count <= 0) throw new IncorrectParameterException("count");
+        if (count <= 0) throw new IncorrectParameterException("count: " + count);
         return filmService.getPopular(count);
     }
 }
