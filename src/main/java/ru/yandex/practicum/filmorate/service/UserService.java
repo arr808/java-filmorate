@@ -84,15 +84,11 @@ public class UserService {
 
     public List<User> getCommonFriends(int id, int otherId) {
         Set<Integer> userFriends = getById(id).getFriends();
-        Set<Integer> otherUserFriends = getById(id).getFriends();
-        List<Integer> friendIds;
+        Set<Integer> otherUserFriends = getById(otherId).getFriends();
         List<User> commonFriends = new ArrayList<>();
         if (userFriends.size() > otherUserFriends.size()) {
-            friendIds = getCommon(userFriends, otherUserFriends);
-        } else friendIds = getCommon(otherUserFriends, userFriends);
-        for (int friendId : friendIds) {
-            commonFriends.add(getById(friendId));
-        }
+            commonFriends = getCommon(userFriends, otherUserFriends);
+        } else commonFriends = getCommon(otherUserFriends, userFriends);
         log.trace("Отправлен список общих друзей {} пользователей {}, {}",
                 commonFriends, getById(id), getById(otherId));
         return commonFriends;
@@ -114,9 +110,10 @@ public class UserService {
         }
     }
 
-    private List<Integer> getCommon(Set<Integer> userFriends, Set<Integer> otherUserFriends) {
+    private List<User> getCommon(Set<Integer> userFriends, Set<Integer> otherUserFriends) {
         return userFriends.stream()
                 .filter(otherUserFriends::contains)
+                .map(userStorage::getById)
                 .collect(Collectors.toList());
     }
 }
