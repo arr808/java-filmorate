@@ -35,6 +35,10 @@ public class FilmService {
     }
 
     public Film update(Film film) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            log.warn("Не корректная дата релиза фильма - {}", film);
+            throw new ValidationException("film" , "Дата релиза не может быть раньше 28 декабря 1895 года");
+        }
         return filmStorage.update(film);
     }
 
