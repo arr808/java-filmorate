@@ -5,11 +5,13 @@ import org.junit.jupiter.api.AfterEach;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,7 +25,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@SpringBootTest
+@AutoConfigureMockMvc
 public class FilmControllerTests {
 
     private final String query = "/films";
@@ -44,6 +47,7 @@ public class FilmControllerTests {
     @AfterEach
     public void clean() throws Exception {
         mockMvc.perform(delete(query));
+        mockMvc.perform(delete("/users"));
     }
 
     @Test
@@ -73,7 +77,7 @@ public class FilmControllerTests {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(500));
+                .andExpect(status().is(409));
     }
 
     @Test
@@ -82,7 +86,7 @@ public class FilmControllerTests {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -101,7 +105,7 @@ public class FilmControllerTests {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -110,7 +114,7 @@ public class FilmControllerTests {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -129,7 +133,7 @@ public class FilmControllerTests {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(500));
+                .andExpect(status().is(400));
     }
 
     @Test
@@ -138,7 +142,7 @@ public class FilmControllerTests {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -147,7 +151,7 @@ public class FilmControllerTests {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -156,7 +160,7 @@ public class FilmControllerTests {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -165,7 +169,7 @@ public class FilmControllerTests {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -206,7 +210,7 @@ public class FilmControllerTests {
         mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(500));
+                .andExpect(status().is(404));
     }
 
     @Test
@@ -222,7 +226,7 @@ public class FilmControllerTests {
         mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -238,7 +242,7 @@ public class FilmControllerTests {
         mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -254,7 +258,7 @@ public class FilmControllerTests {
         mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -270,7 +274,7 @@ public class FilmControllerTests {
         mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(500));
+                .andExpect(status().is(400));
     }
 
     @Test
@@ -286,7 +290,7 @@ public class FilmControllerTests {
         mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -302,7 +306,7 @@ public class FilmControllerTests {
         mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -318,7 +322,7 @@ public class FilmControllerTests {
         mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
     }
 
     @Test
@@ -334,6 +338,122 @@ public class FilmControllerTests {
         mockMvc.perform(put(query)
                         .content(objectMapper.writeValueAsString(film))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(400));
+                .andExpect(status().is(500));
+    }
+
+    @Test
+    public void shouldReturnFilm() throws Exception {
+        mockMvc.perform(post(query)
+                        .content(objectMapper.writeValueAsString(film))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(film)));
+
+        mockMvc.perform(get(query + "/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(film)));
+    }
+
+    @Test
+    public void shouldNotReturnUnknownFilm() throws Exception {
+        mockMvc.perform(post(query)
+                        .content(objectMapper.writeValueAsString(film))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        mockMvc.perform(get(query + "/11"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    public void shouldAddLike() throws Exception {
+        User user = User.builder()
+                .id(1)
+                .login("login")
+                .email("my@mail.ru")
+                .name("name")
+                .birthday(LocalDate.of(2021,1,1))
+                .build();
+
+        mockMvc.perform(post("/users")
+                        .content(objectMapper.writeValueAsString(user))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        mockMvc.perform(post(query)
+                        .content(objectMapper.writeValueAsString(film))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        mockMvc.perform(put(query + "/1/like/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldNotAddLikeFromUnknownUser() throws Exception {
+        mockMvc.perform(post(query)
+                .content(objectMapper.writeValueAsString(film))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        mockMvc.perform(put(query + "/1/like/1"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    public void shouldNotAddLikeToUnknownFilm() throws Exception {
+        User user = User.builder()
+                .id(1)
+                .login("login")
+                .email("my@mail.ru")
+                .name("name")
+                .birthday(LocalDate.of(2021,1,1))
+                .build();
+
+        mockMvc.perform(post("/users")
+                .content(objectMapper.writeValueAsString(user))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        mockMvc.perform(put(query + "/1/like/1"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    public void shouldReturnMostPopular() throws Exception {
+        User user = User.builder()
+                .id(1)
+                .login("login")
+                .email("my@mail.ru")
+                .name("name")
+                .birthday(LocalDate.of(2021,1,1))
+                .build();
+
+        User otherUser = User.builder()
+                .id(2)
+                .login("login2")
+                .email("my2@mail.ru")
+                .name("name")
+                .birthday(LocalDate.of(2021,1,1))
+                .build();
+
+        mockMvc.perform(post("/users")
+                .content(objectMapper.writeValueAsString(user))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+
+        mockMvc.perform(post("/users")
+                .content(objectMapper.writeValueAsString(otherUser))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+
+        mockMvc.perform(post(query)
+                .content(objectMapper.writeValueAsString(film))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+
+        mockMvc.perform(put(query + "/1/like/1")).andExpect(status().isOk());
+
+        mockMvc.perform(put(query + "/1/like/2")).andExpect(status().isOk());
+
+        List<Film> popularFilms = new ArrayList<>();
+
+        popularFilms.add(film);
+
+        mockMvc.perform(get(query + "/popular?count"))
+                .andExpect(status().is(200))
+                .andExpect(content().json(objectMapper.writeValueAsString(popularFilms)));
     }
 }
