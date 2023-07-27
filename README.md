@@ -24,9 +24,9 @@ SELECT u.user_id,
 FROM users AS u
 INNER JOIN friends AS f ON u.user_id = f.friend_id
 WHERE f.user_id IN (n1, n2)
-AND friendship_status_id = 1 _-- проверка статуса дружбы_
+AND friendship_status_id = 1 -- проверка статуса дружбы
 GROUP BY u.user_id
-HAVING COUNT(f.user_id) = 2 _-- наличие пользователей в обоих списках друзей_
+HAVING COUNT(f.user_id) = 2 -- наличие пользователей в обоих списках друзей
 ORDER BY u.user_id;
 ```
 **3. Получение всех фильмов:**
