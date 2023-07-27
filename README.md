@@ -2,7 +2,7 @@
 Template repository for Filmorate project.
 
 ## Схема базы данных
-![Схема БД](/src/main/resources/Filmorate.png)
+![Схема БД](src/main/resources/BDScheme.png)
 
 ### Пример запросов:
 **1. Получение всех пользователей:**
@@ -36,11 +36,9 @@ SELECT f.film_id,
        f.description,
        f.release_date,
        f.duration,
-       g.genre_id genre,
        fr.rating_name rating
-COUNT(l.film_id) likes
+       COUNT(l.film_id) likes
 FROM films AS f
-LEFT JOIN genre AS g ON f.genre_id = g.genre_id
 LEFT JOIN film_rating AS fr ON f.rating_id = fr.raiting_id
 LEFT JOIN likes AS l ON f.film_id = l.film_id
 GROUP BY f.film_id;
@@ -54,7 +52,7 @@ SELECT f.film_id,
        f.duration,
        g.genre_id genre,
        fr.rating_name rating
-COUNT(l.film_id) likes
+       COUNT(l.film_id) likes
 FROM films AS f
 LEFT JOIN genre AS g ON f.genre_id = g.genre_id
 LEFT JOIN film_rating AS fr ON f.rating_id = fr.raiting_id
