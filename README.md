@@ -2,7 +2,7 @@
 Template repository for Filmorate project.
 
 ## Схема базы данных
-![Схема БД](src/main/resources/BDScheme.png)
+![Схема БД](src/main/resources/BD_scheme.png)
 
 ### Пример запросов:
 **1. Получение всех пользователей:**
