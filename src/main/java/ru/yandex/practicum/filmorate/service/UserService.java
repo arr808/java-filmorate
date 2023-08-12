@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,11 +21,15 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 public class UserService {
 
     private int id;
+
     private final UserStorage userStorage;
+    private final FriendshipService friendshipService;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("UserDaoDbStorageImpl") UserStorage userStorage,
+                       FriendshipService friendshipService) {
         this.userStorage = userStorage;
+        this.friendshipService = friendshipService;
     }
 
     public User add(User user) {
@@ -57,25 +63,28 @@ public class UserService {
     public void addFriend(int userId, int friendId) {
         User user = getById(userId);
         User friend = getById(friendId);
-        user.getFriends().add(friendId);
-        log.debug("Пользователю - {} добавлен в друзья {}", user, friend);
-        friend.getFriends().add(userId);
-        log.debug("Пользователю - {} добавлен в друзья {}", friend, user);
+        friendshipService.addFriend(userId, friendId);
+        log.debug("Пользователь - {} отправил заявку на дружбу с пользователем {}", user, friend);
+    }
+
+    public void acceptFriend(int userId, int friendId) {
+        User user = getById(userId);
+        User friend = getById(friendId);
+        friendshipService.acceptFriend(userId, friendId);
+        log.debug("Пользовател - {} подтвердил дружбу с пользователем {}", user, friend);
     }
 
     public void deleteFriend(int userId, int friendId) {
         User user = getById(userId);
         User friend = getById(friendId);
-        user.getFriends().remove(friendId);
-        log.debug("У пользователюя- {} удален друг {}", user, friend);
-        friend.getFriends().remove(userId);
-        log.debug("У пользователюя- {} удален друг {}", friend, user);
+        friendshipService.deleteFriend(userId, friendId);
+        log.debug("У пользователя- {} удален друг {}", user, friend);
     }
 
     public List<User> getFriends(int id) {
         User user = getById(id);
         List<User> friends = new ArrayList<>();
-        for (int friendId : user.getFriends()) {
+        for (int friendId : friendshipService.getFriendsIdById(id)) {
             friends.add(getById(friendId));
         }
         log.trace("Отправлен список друзей {} пользователя {}", friends, user);
@@ -83,9 +92,9 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        Set<Integer> userFriends = getById(id).getFriends();
-        Set<Integer> otherUserFriends = getById(otherId).getFriends();
-        List<User> commonFriends = new ArrayList<>();
+        Set<Integer> userFriends = new HashSet<>(friendshipService.getFriendsIdById(id));
+        Set<Integer> otherUserFriends = new HashSet<>(friendshipService.getFriendsIdById(otherId));
+        List<User> commonFriends;
         if (userFriends.size() > otherUserFriends.size()) {
             commonFriends = getCommon(userFriends, otherUserFriends);
         } else commonFriends = getCommon(otherUserFriends, userFriends);
@@ -99,9 +108,12 @@ public class UserService {
     }
 
     private void validate(User user) {
-        if (userStorage.getById(user.getId()) != null) {
-            log.warn("Пользователь {} уже добавлен", user);
-            throw new AlreadyExistException("user");
+        int id = user.getId();
+        if (id != 0) {
+            if (userStorage.getById(id) != null) {
+                log.warn("Пользователь {} уже добавлен", user);
+                throw new AlreadyExistException("user");
+            }
         }
 
         if (user.getName().isBlank() || user.getName() == null) {

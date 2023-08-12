@@ -47,6 +47,14 @@ public class UserController {
         userService.addFriend(id, friendId);
     }
 
+    @PutMapping("/{id}/friend/{friendId}")
+    public void acceptFriend(@PathVariable int id,
+                          @PathVariable int friendId) {
+        if (id <= 0) throw new IncorrectParameterException("id: " + id);
+        if (friendId <= 0) throw new IncorrectParameterException("friendId: " + friendId);
+        userService.acceptFriend(id, friendId);
+    }
+
     @DeleteMapping
     public void deleteAll() {
         userService.deleteAll();
@@ -66,7 +74,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User findGyId(@PathVariable int id) {
+    public User findById(@PathVariable int id) {
         if (id <= 0) throw new IncorrectParameterException("id: " + id);
         return userService.getById(id);
     }

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,7 +25,7 @@ public class FilmService {
     private final UserService userService;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(@Qualifier("FilmDaoDbStorageImpl") FilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
     }
@@ -84,9 +85,12 @@ public class FilmService {
     }
 
     private void validate(Film film) {
-        if (filmStorage.getById(film.getId()) != null) {
-            log.warn("Фильм {} уже добавлен", film);
-            throw new AlreadyExistException("film");
+        int id = film.getId();
+        if (id != 0 ) {
+            if (filmStorage.getById(id) != null) {
+                log.warn("Фильм {} уже добавлен", film);
+                throw new AlreadyExistException("film");
+            }
         }
         validateReleaseDate(film);
     }
@@ -94,7 +98,7 @@ public class FilmService {
     private void validateReleaseDate(Film film) {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Не корректная дата релиза фильма - {}", film);
-                throw new ValidationException("film", "Дата релиза не может быть раньше 28 декабря 1895 года");
+            throw new ValidationException("film", "Дата релиза не может быть раньше 28 декабря 1895 года");
         }
     }
 }
