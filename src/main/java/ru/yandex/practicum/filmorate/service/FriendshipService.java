@@ -18,7 +18,7 @@ public class FriendshipService {
 
     private final FriendshipStorage friendshipStorage;
 
-    public FriendshipService(@Qualifier("FriendshipDaoImpl") FriendshipStorage friendshipStorage) {
+    public FriendshipService(@Qualifier("FriendshipDbStorageImpl") FriendshipStorage friendshipStorage) {
         this.friendshipStorage = friendshipStorage;
     }
 

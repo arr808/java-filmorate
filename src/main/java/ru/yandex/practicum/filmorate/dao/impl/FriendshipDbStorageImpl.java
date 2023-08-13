@@ -7,6 +7,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.dao.FriendshipDbStorage;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.FriendshipStatus;
@@ -17,16 +18,16 @@ import java.sql.Types;
 import java.util.Collection;
 
 @Component
-@Qualifier("FriendshipDaoImpl")
+@Qualifier("FriendshipDbStorageImpl")
 @RequiredArgsConstructor
 @Slf4j
-public class FriendshipDaoDbStorageImpl implements FriendshipDbStorage {
+public class FriendshipDbStorageImpl implements FriendshipDbStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void addFriend(int userId, int friendId, FriendshipStatus friendshipStatus) {
-        String sql = "INSERT INTO friends (user_id, friend_id, friendship_status_id) VALUES (?, ?, ?)";
+        String sql = "MERGE INTO friends (user_id, friend_id, friendship_status_id) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, userId, friendId, friendshipStatus.getTitle());
         log.info("Пользователю id {} добавлен друг id {}", userId, friendId);
     }
@@ -53,7 +54,7 @@ public class FriendshipDaoDbStorageImpl implements FriendshipDbStorage {
             log.info("Отправлен список друзей {}", friends);
             return friends;
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            throw new NotFoundException("friendships");
         }
     }
 
@@ -80,12 +81,13 @@ public class FriendshipDaoDbStorageImpl implements FriendshipDbStorage {
             friendship.setUserId(rs.getInt("user_id"));
             friendship.setFriendId(rs.getInt("friend_id"));
 
-            int status = rs.getInt("friendship_status_id");
-
-            if (status == 0) {
-                friendship.setFriendshipStatus(FriendshipStatus.SEND);
-            } else friendship.setFriendshipStatus(FriendshipStatus.ACCEPTED);
-
+            try {
+                int status = rs.getInt("friendship_status_id");
+                FriendshipStatus[] friendshipStatuses = FriendshipStatus.values();
+                friendship.setFriendshipStatus(friendshipStatuses[status]);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new NotFoundException("friendship status id");
+            }
             return friendship;
         }
     }

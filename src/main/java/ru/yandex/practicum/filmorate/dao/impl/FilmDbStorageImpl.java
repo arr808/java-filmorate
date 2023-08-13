@@ -8,22 +8,30 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
+
 import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.film.FilmGenreStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.HashSet;
 import java.util.List;
 
 @Component
-@Qualifier("FilmDaoDbStorageImpl")
+@Qualifier("FilmDbStorageImpl")
 @RequiredArgsConstructor
 @Slf4j
-public class FilmDaoDbStorageImpl implements FilmDbStorage {
+public class FilmDbStorageImpl implements FilmDbStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final FilmGenreStorage filmGenreStorage;
+    private final LikeStorage likeStorage;
 
     @Override
     public Film add(Film film) {
@@ -35,6 +43,7 @@ public class FilmDaoDbStorageImpl implements FilmDbStorage {
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getMpa().getId());
+        loadFilmGenres(film);
         log.info("Добавлен фильм - {}", film);
         return film;
     }
@@ -52,6 +61,7 @@ public class FilmDaoDbStorageImpl implements FilmDbStorage {
                 film.getDuration(),
                 film.getMpa().getId(),
                 id);
+        loadFilmGenres(film);
         log.info("Обновлены данные фильма - {}", film);
         return film;
     }
@@ -77,16 +87,37 @@ public class FilmDaoDbStorageImpl implements FilmDbStorage {
         try {
             Film film = jdbcTemplate.queryForObject(sql,
                     new Object[] { id },
-                    new int[]{Types.INTEGER}, new FilmRowMapper());
+                    new int[]{Types.INTEGER},
+                    new FilmRowMapper());
 
             log.info("Найден фильм {}", film);
+
             return film;
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("film");
         }
     }
 
-    static class FilmRowMapper implements RowMapper<Film> {
+    private void loadFilmGenres(Film film) {
+        filmGenreStorage.deleteAllFilmGenre(film.getId());
+        List<Genre> genres = film.getGenres();
+        if (genres.size() != 0) {
+            for (Genre genre : genres) {
+                filmGenreStorage.addFilmGenre(film.getId(), genre.getId());
+            }
+        }
+        setFilmGenres(film);
+    }
+
+    private void setFilmGenres(Film film) {
+        film.getGenres().clear();
+        List<FilmGenre> filmGenres = filmGenreStorage.getFilmGenresById(film.getId());
+        for (FilmGenre filmGenre : filmGenres) {
+            film.getGenres().add(filmGenre.getGenre());
+        }
+    }
+
+    class FilmRowMapper implements RowMapper<Film> {
         @Override
         public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
             Film film = new Film();
@@ -96,28 +127,16 @@ public class FilmDaoDbStorageImpl implements FilmDbStorage {
             film.setDescription(rs.getString("description"));
             film.setReleaseDate(rs.getDate("release_date").toLocalDate());
             film.setDuration(rs.getLong("duration"));
-            int rating = rs.getInt("mpa_id");
 
-            switch (rating) {
-                case(1):
-                    film.setMpa(Mpa.G);
-                    break;
-                case (2):
-                    film.setMpa(Mpa.PG);
-                    break;
-                case (3):
-
-                    film.setMpa(Mpa.PG13);
-                    break;
-                case (4):
-                    film.setMpa(Mpa.R);
-                    break;
-                case (5):
-                    film.setMpa(Mpa.NC17);
-                    break;
-                default:
-                    throw new NotFoundException("rating");
+            try {
+                int mpaId = rs.getInt("mpa_id");
+                film.setMpa(Mpa.forValues(mpaId));
+            } catch (Exception e) {
+                throw new NotFoundException("mpa id");
             }
+            setFilmGenres(film);
+            film.setLikes(new HashSet<>(likeStorage.getUserLiked(film.getId())));
+
             return film;
         }
     }

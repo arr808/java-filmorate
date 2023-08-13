@@ -26,7 +26,7 @@ public class UserService {
     private final FriendshipService friendshipService;
 
     @Autowired
-    public UserService(@Qualifier("UserDaoDbStorageImpl") UserStorage userStorage,
+    public UserService(@Qualifier("UserDbStorageImpl") UserStorage userStorage,
                        FriendshipService friendshipService) {
         this.userStorage = userStorage;
         this.friendshipService = friendshipService;

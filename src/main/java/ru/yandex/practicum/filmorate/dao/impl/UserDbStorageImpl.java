@@ -19,10 +19,10 @@ import java.sql.Types;
 import java.util.List;
 
 @Component
-@Qualifier("UserDaoDbStorageImpl")
+@Qualifier("UserDbStorageImpl")
 @RequiredArgsConstructor
 @Slf4j
-public class UserDaoDbStorageImpl implements UserDbStorage {
+public class UserDbStorageImpl implements UserDbStorage {
 
     private final JdbcTemplate jdbcTemplate;
 

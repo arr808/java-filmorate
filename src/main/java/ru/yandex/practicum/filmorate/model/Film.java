@@ -13,7 +13,9 @@ import javax.validation.constraints.Past;
 import javax.validation.constraints.Positive;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -33,11 +35,13 @@ public class Film {
     @Positive
     private long duration;
     private Mpa mpa;
+    private List<Genre> genres = new ArrayList<>();
     @JsonIgnore
-    private final Set<Integer> likes = new HashSet<>();
+    private Set<Integer> likes = new HashSet<>();
 
     @JsonIgnore
     public int getLikeCount() {
         return likes.size();
     }
+
 }

@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.custom_exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 @Service
 @Slf4j
@@ -23,11 +24,15 @@ public class FilmService {
     private int id;
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private final LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(@Qualifier("FilmDaoDbStorageImpl") FilmStorage filmStorage, UserService userService) {
+    public FilmService(@Qualifier("FilmDbStorageImpl") FilmStorage filmStorage,
+                       UserService userService,
+                       @Qualifier("LikeDbStorageImpl") LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.likeStorage = likeStorage;
     }
 
     public Film add(Film film) {
@@ -62,14 +67,14 @@ public class FilmService {
     public void addLike(int filmId, int userId) {
         Film film = getById(filmId);
         userService.getById(userId); //проверяем что пользователь существует
-        film.getLikes().add(userId);
+        likeStorage.addLike(userId, filmId);
         log.debug("Поставлен лайк фильму - {}", film);
     }
 
     public void removeLike(int filmId, int userId) {
         Film film = getById(filmId);
         userService.getById(userId); //проверяем что пользователь существует
-        film.getLikes().remove(userId);
+        likeStorage.addLike(userId, filmId);
         log.debug("Удален лайк у фильма - {}", film);
     }
 
