@@ -85,7 +85,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     }
 
     @Override
-    public void deleteAll(){
+    public void deleteAll() {
         String sql = "DELETE FROM films";
         jdbcTemplate.update(sql);
         log.info("Все фильмы удалены");
