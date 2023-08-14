@@ -1,21 +1,22 @@
 package ru.yandex.practicum.filmorate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
+import lombok.RequiredArgsConstructor;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,6 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Sql(value = {"/schema.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(value = {"/data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(value = {"/dropDb.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class UserControllerTest {
 
     private final String query = "/users";
@@ -36,6 +42,13 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     private final User user = User.builder()
+            .login("login")
+            .email("my@mail.ru")
+            .name("name")
+            .birthday(LocalDate.of(2021,1,1))
+            .build();
+
+    private final User expectedUser = User.builder()
             .id(1)
             .login("login")
             .email("my@mail.ru")
@@ -44,17 +57,11 @@ public class UserControllerTest {
             .build();
 
     private final User friend = User.builder()
-            .id(2)
             .login("friend")
             .email("his@mail.ru")
             .name("name")
             .birthday(LocalDate.of(2021,1,2))
             .build();
-
-    @AfterEach
-    public void clean() throws Exception {
-        mockMvc.perform(delete(query));
-    }
 
     @Test
     public void shouldAddAndReturnUsers() throws Exception {
@@ -62,10 +69,10 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(content().json(objectMapper.writeValueAsString(expectedUser)));
 
         List<User> users = new ArrayList<>();
-        users.add(user);
+        users.add(expectedUser);
 
         mockMvc.perform(get(query))
                 .andExpect(status().isOk())
@@ -75,20 +82,19 @@ public class UserControllerTest {
     @Test
     public void shouldAddUserWithEmptyName() throws Exception {
         User nonameUser = User.builder()
-                .id(1)
                 .login("login")
                 .email("my@mail.ru")
                 .name("")
                 .birthday(LocalDate.of(2021,1,1))
                 .build();
 
-        user.setName(user.getLogin());
+        expectedUser.setName(user.getLogin());
 
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(nonameUser))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(content().json(objectMapper.writeValueAsString(expectedUser)));
     }
 
     @Test
@@ -96,8 +102,7 @@ public class UserControllerTest {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(status().isOk());
 
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
@@ -137,19 +142,18 @@ public class UserControllerTest {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(status().isOk());
 
-        user.setName("NAME");
+        expectedUser.setName("NAME");
 
         mockMvc.perform(put(query)
-                        .content(objectMapper.writeValueAsString(user))
+                        .content(objectMapper.writeValueAsString(expectedUser))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(content().json(objectMapper.writeValueAsString(expectedUser)));
 
         List<User> users = new ArrayList<>();
-        users.add(user);
+        users.add(expectedUser);
 
         mockMvc.perform(get(query))
                 .andExpect(status().isOk())
@@ -162,8 +166,7 @@ public class UserControllerTest {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(status().isOk());
 
         user.setId(50);
 
@@ -178,8 +181,7 @@ public class UserControllerTest {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(status().isOk());
 
         user.setLogin("");
 
@@ -194,8 +196,7 @@ public class UserControllerTest {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(status().isOk());
 
         user.setBirthday(LocalDate.now().plusDays(1));
 
@@ -206,12 +207,11 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldNotUpdateFilmWithNullReleaseDate() throws Exception {
+    public void shouldNotUpdateFilmWithNullBirthday() throws Exception {
         mockMvc.perform(post(query)
                         .content(objectMapper.writeValueAsString(user))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(status().isOk());
 
         user.setBirthday(null);
 
@@ -229,7 +229,7 @@ public class UserControllerTest {
 
         mockMvc.perform(get(query + "/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+                .andExpect(content().json(objectMapper.writeValueAsString(expectedUser)));
     }
 
     @Test
@@ -255,6 +255,7 @@ public class UserControllerTest {
         mockMvc.perform(put(query + "/1/friends/2"))
                 .andExpect(status().isOk());
 
+        friend.setId(2);
         List<User> friends = new ArrayList<>();
         friends.add(friend);
 
@@ -295,7 +296,6 @@ public class UserControllerTest {
     @Test
     public void shouldReturnCommonFriends() throws Exception {
         User common = User.builder()
-                .id(3)
                 .login("common")
                 .email("com@mail.ru")
                 .name("name")
@@ -320,6 +320,7 @@ public class UserControllerTest {
         mockMvc.perform(put(query + "/2/friends/3"))
                 .andExpect(status().isOk());
 
+        common.setId(3);
         List<User> friends = new ArrayList<>();
         friends.add(common);
 

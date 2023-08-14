@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 
+import ru.yandex.practicum.filmorate.custom_exceptions.AlreadyExistException;
 import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.User;
@@ -16,7 +18,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Qualifier("UserDbStorageImpl")
@@ -28,8 +32,21 @@ public class UserDbStorageImpl implements UserDbStorage {
 
     @Override
     public User add(User user) {
-        String sql = "INSERT INTO users (id, email, login, name, birthday) VALUES (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, user.getId(), user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
+        if (getAll().contains(user)) throw new AlreadyExistException("user");
+
+        SimpleJdbcInsert simpleInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("users")
+                .usingGeneratedKeyColumns("id");
+
+        Map<String, String> message = new HashMap<>();
+        message.put("email", user.getEmail());
+        message.put("login", user.getLogin());
+        message.put("name", user.getName());
+        message.put("birthday", String.valueOf(user.getBirthday()));
+
+        int id = simpleInsert.executeAndReturnKey(message).intValue();
+        user.setId(id);
+
         log.info("Добавлен пользователь - {}", user);
         return user;
     }

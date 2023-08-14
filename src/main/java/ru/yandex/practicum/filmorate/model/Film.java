@@ -13,10 +13,7 @@ import javax.validation.constraints.Past;
 import javax.validation.constraints.Positive;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Builder
@@ -37,11 +34,28 @@ public class Film {
     private Mpa mpa;
     private List<Genre> genres = new ArrayList<>();
     @JsonIgnore
-    private Set<Integer> likes = new HashSet<>();
+    private final Set<Integer> likes = new HashSet<>();
 
     @JsonIgnore
     public int getLikeCount() {
         return likes.size();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Film film = (Film) o;
+        return duration == film.duration &&
+                Objects.equals(name, film.name) &&
+                Objects.equals(description, film.description) &&
+                Objects.equals(releaseDate, film.releaseDate) &&
+                mpa == film.mpa && Objects.equals(genres, film.genres)
+                && Objects.equals(likes, film.likes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, releaseDate, duration, mpa, genres, likes);
+    }
 }

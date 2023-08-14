@@ -20,8 +20,6 @@ import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 @Service
 @Slf4j
 public class FilmService {
-
-    private int id;
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final LikeStorage likeStorage;
@@ -37,7 +35,6 @@ public class FilmService {
 
     public Film add(Film film) {
         validate(film);
-        film.setId(getNewId());
         return filmStorage.add(film);
     }
 
@@ -48,7 +45,6 @@ public class FilmService {
 
     public void deleteAll() {
         filmStorage.deleteAll();
-        id = 0;
     }
 
     public List<Film> getAll() {
@@ -79,14 +75,7 @@ public class FilmService {
     }
 
     public List<Film> getPopular(int size) {
-        return filmStorage.getAll().stream()
-                .sorted(Comparator.comparing(Film::getLikeCount).reversed())
-                .limit(size)
-                .collect(Collectors.toList());
-    }
-
-    private int getNewId() {
-        return ++id;
+        return filmStorage.getPopular(size);
     }
 
     private void validate(Film film) {

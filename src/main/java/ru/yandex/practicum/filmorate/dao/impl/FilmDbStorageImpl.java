@@ -2,26 +2,29 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
 
+import ru.yandex.practicum.filmorate.custom_exceptions.AlreadyExistException;
+import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmGenreStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Qualifier("FilmDbStorageImpl")
@@ -31,18 +34,25 @@ public class FilmDbStorageImpl implements FilmDbStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final FilmGenreStorage filmGenreStorage;
-    private final LikeStorage likeStorage;
 
     @Override
     public Film add(Film film) {
-        String sql = "INSERT INTO films (film_id, name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql,
-                film.getId(),
-                film.getName(),
-                film.getDescription(),
-                film.getReleaseDate(),
-                film.getDuration(),
-                film.getMpa().getId());
+        if (getAll().contains(film)) throw new AlreadyExistException("film");
+
+        SimpleJdbcInsert simpleInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("films")
+                .usingGeneratedKeyColumns("film_id");
+
+        Map<String, String> message = new HashMap<>();
+        message.put("name", film.getName());
+        message.put("description", film.getDescription());
+        message.put("release_date", String.valueOf(film.getReleaseDate()));
+        message.put("duration", String.valueOf(film.getDuration()));
+        message.put("mpa_id", String.valueOf(film.getMpa().getId()));
+
+        int id = simpleInsert.executeAndReturnKey(message).intValue();
+        film.setId(id);
+
         loadFilmGenres(film);
         log.info("Добавлен фильм - {}", film);
         return film;
@@ -70,7 +80,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     public List<Film> getAll() {
         String sql = "SELECT * FROM films";
         List<Film> films = jdbcTemplate.query(sql, new FilmRowMapper());
-        log.info("Отправлен список пользователей - {}", films);
+        log.info("Отправлен список фильмов - {}", films);
         return films;
     }
 
@@ -96,6 +106,25 @@ public class FilmDbStorageImpl implements FilmDbStorage {
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("film");
         }
+    }
+
+    @Override
+    public List<Film> getPopular(int size) {
+        String sql = "SELECT f.film_id, " +
+                            "f.name, " +
+                            "f.description, " +
+                            "f.release_date, " +
+                            "f.duration, " +
+                            "f.mpa_id, " +
+                            "COUNT(l.film_id) likes " +
+                     "FROM films AS f " +
+                     "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                     "GROUP BY f.film_id " +
+                     "ORDER BY likes DESC " +
+                     "LIMIT ?";
+        List<Film> films = jdbcTemplate.query(sql, new FilmRowMapper(), size);
+        log.info("Отправлен список популярных фильмов - {}", films);
+        return films;
     }
 
     private void loadFilmGenres(Film film) {
@@ -135,7 +164,6 @@ public class FilmDbStorageImpl implements FilmDbStorage {
                 throw new NotFoundException("mpa id");
             }
             setFilmGenres(film);
-            film.setLikes(new HashSet<>(likeStorage.getUserLiked(film.getId())));
 
             return film;
         }

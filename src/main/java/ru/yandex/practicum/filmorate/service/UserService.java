@@ -20,8 +20,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 @Slf4j
 public class UserService {
 
-    private int id;
-
     private final UserStorage userStorage;
     private final FriendshipService friendshipService;
 
@@ -34,7 +32,6 @@ public class UserService {
 
     public User add(User user) {
         validate(user);
-        user.setId(getNewId());
         return userStorage.add(user);
     }
 
@@ -44,7 +41,6 @@ public class UserService {
 
     public void deleteAll() {
         userStorage.deleteAll();
-        id = 0;
     }
 
     public List<User> getAll() {
@@ -101,10 +97,6 @@ public class UserService {
         log.trace("Отправлен список общих друзей {} пользователей {}, {}",
                 commonFriends, getById(id), getById(otherId));
         return commonFriends;
-    }
-
-    private int getNewId() {
-        return ++id;
     }
 
     private void validate(User user) {
