@@ -7,8 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum FriendshipStatus {
 
-    SEND (0),
-    ACCEPTED (1);
+    SEND(0),
+    ACCEPTED(1);
 
     private final int title;
 }
