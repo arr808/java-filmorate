@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.custom_exceptions.AlreadyExistException;
 import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
@@ -80,7 +78,7 @@ public class FilmService {
 
     private void validate(Film film) {
         int id = film.getId();
-        if (id != 0 ) {
+        if (id != 0) {
             if (filmStorage.getById(id) != null) {
                 log.warn("Фильм {} уже добавлен", film);
                 throw new AlreadyExistException("film");
