@@ -14,7 +14,5 @@ public interface FriendshipDbStorage extends FriendshipStorage {
 
     void deleteFriend(int userId, int friendId);
 
-    Collection<Integer> getFriendsIdById(int userId);
-
     Friendship getFriendshipById(int userId, int friendId);
 }

@@ -59,12 +59,6 @@ public class FriendshipService {
         }
     }
 
-    public Collection<Integer> getFriendsIdById(int userId) {
-        Collection<Integer> friendsId = friendshipStorage.getFriendsIdById(userId);
-        log.info("Отправлен список id {} всех друзей пользователя с id {}", friendsId, userId);
-        return friendsId;
-    }
-
     public Friendship getFriendshipById(int userId, int friendId) {
         Friendship friendship = friendshipStorage.getFriendshipById(userId, friendId);
         log.info("Отправлена дружба {}", friendship);

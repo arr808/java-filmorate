@@ -50,14 +50,14 @@ public class FilmGenreDbStorageImpl implements FilmGenreDbStorage {
         String sql = "SELECT * FROM film_genre WHERE film_id = ?";
         try {
             List<FilmGenre> filmGenres = jdbcTemplate.query(sql, new FilmToGenreRowMapper(), id);
-            log.info("Отправлен список друзей {}", filmGenres);
+            log.info("Отправлен список жанров {}", filmGenres);
             return filmGenres;
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("filmGenres");
         }
     }
 
-    static class FilmToGenreRowMapper implements RowMapper<FilmGenre> {
+    class FilmToGenreRowMapper implements RowMapper<FilmGenre> {
         @Override
         public FilmGenre mapRow(ResultSet rs, int rowNum) throws SQLException {
             FilmGenre filmToGenre = new FilmGenre();

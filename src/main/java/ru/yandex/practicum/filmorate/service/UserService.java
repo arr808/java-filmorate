@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.custom_exceptions.AlreadyExistException;
 import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
@@ -78,25 +75,11 @@ public class UserService {
     }
 
     public List<User> getFriends(int id) {
-        User user = getById(id);
-        List<User> friends = new ArrayList<>();
-        for (int friendId : friendshipService.getFriendsIdById(id)) {
-            friends.add(getById(friendId));
-        }
-        log.trace("Отправлен список друзей {} пользователя {}", friends, user);
-        return friends;
+        return userStorage.getFriendsById(id);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        Set<Integer> userFriends = new HashSet<>(friendshipService.getFriendsIdById(id));
-        Set<Integer> otherUserFriends = new HashSet<>(friendshipService.getFriendsIdById(otherId));
-        List<User> commonFriends;
-        if (userFriends.size() > otherUserFriends.size()) {
-            commonFriends = getCommon(userFriends, otherUserFriends);
-        } else commonFriends = getCommon(otherUserFriends, userFriends);
-        log.trace("Отправлен список общих друзей {} пользователей {}, {}",
-                commonFriends, getById(id), getById(otherId));
-        return commonFriends;
+        return userStorage.getCommonFriends(id, otherId);
     }
 
     private void validate(User user) {
@@ -114,10 +97,4 @@ public class UserService {
         }
     }
 
-    private List<User> getCommon(Set<Integer> userFriends, Set<Integer> otherUserFriends) {
-        return userFriends.stream()
-                .filter(otherUserFriends::contains)
-                .map(userStorage::getById)
-                .collect(Collectors.toList());
-    }
 }

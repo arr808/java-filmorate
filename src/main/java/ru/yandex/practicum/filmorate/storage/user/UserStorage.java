@@ -15,4 +15,8 @@ public interface UserStorage {
     List<User> getAll();
 
     User getById(int id);
+
+    List<User> getFriendsById(int id);
+
+    List<User> getCommonFriends(int id, int otherId);
 }

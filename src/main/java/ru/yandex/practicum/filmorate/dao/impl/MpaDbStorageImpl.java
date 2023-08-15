@@ -46,7 +46,7 @@ public class MpaDbStorageImpl implements MpaDbStorage {
         }
     }
 
-    static class MpaRowMapper implements RowMapper<Mpa> {
+    class MpaRowMapper implements RowMapper<Mpa> {
         @Override
         public Mpa mapRow(ResultSet rs, int rowNum) {
             try {

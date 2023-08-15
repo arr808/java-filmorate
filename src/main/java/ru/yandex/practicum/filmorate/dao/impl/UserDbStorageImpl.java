@@ -91,7 +91,40 @@ public class UserDbStorageImpl implements UserDbStorage {
         }
     }
 
-    static class UserRowMapper implements RowMapper<User> {
+    @Override
+    public List<User> getFriendsById(int id) {
+        String sql = "SELECT u.id, " +
+                            "u.email, " +
+                            "u.login, " +
+                            "u.name, " +
+                            "u.birthday " +
+                     "FROM users AS u " +
+                     "INNER JOIN friends AS f ON u.id = f.friend_id " +
+                     "WHERE f.user_id = ?";
+        List<User> friends = jdbcTemplate.query(sql, new UserRowMapper(), id);
+        log.info("Отправлен список друзей - {}", friends);
+        return friends;
+    }
+
+    @Override
+    public List<User> getCommonFriends(int id, int otherId) {
+        String sql = "SELECT u.id, " +
+                            "u.email, " +
+                            "u.login, " +
+                            "u.name, " +
+                            "u.birthday " +
+                     "FROM users AS u " +
+                     "INNER JOIN friends AS f ON u.id = f.friend_id " +
+                     "WHERE f.user_id IN (?, ?) " +
+                     "GROUP BY u.id " +
+                     "HAVING COUNT (f.user_id) = 2 " +
+                     "ORDER BY u.id";
+        List<User> commonFriends = jdbcTemplate.query(sql, new UserRowMapper(), id, otherId);
+        log.info("Отправлен список общих друзей - {}", commonFriends);
+        return commonFriends;
+    }
+
+    class UserRowMapper implements RowMapper<User> {
         @Override
         public User mapRow(ResultSet rs, int rowNum) throws SQLException {
             User user = new User();

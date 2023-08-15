@@ -146,7 +146,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
         }
     }
 
-    class FilmRowMapper implements RowMapper<Film> {
+     class FilmRowMapper implements RowMapper<Film> {
         @Override
         public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
             Film film = new Film();

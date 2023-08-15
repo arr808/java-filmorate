@@ -47,18 +47,6 @@ public class FriendshipDbStorageImpl implements FriendshipDbStorage {
     }
 
     @Override
-    public Collection<Integer> getFriendsIdById(int userId) {
-        try {
-            String sql = "SELECT friend_id FROM friends WHERE user_id = ?;";
-            Collection<Integer> friends = jdbcTemplate.queryForList(sql, Integer.class, userId);
-            log.info("Отправлен список друзей {}", friends);
-            return friends;
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("friendships");
-        }
-    }
-
-    @Override
     public Friendship getFriendshipById(int userId, int friendId) {
         try {
             String sql = "SELECT * FROM friends WHERE user_id = ? AND friend_id = ?";
@@ -73,7 +61,7 @@ public class FriendshipDbStorageImpl implements FriendshipDbStorage {
         }
     }
 
-    static class FriendshipRowMapper implements RowMapper<Friendship> {
+    class FriendshipRowMapper implements RowMapper<Friendship> {
         @Override
         public Friendship mapRow(ResultSet rs, int rowNum) throws SQLException {
             Friendship friendship = new Friendship();
