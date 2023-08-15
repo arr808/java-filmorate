@@ -10,8 +10,6 @@ import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.storage.friendship.FriendshipStorage;
 
-import java.util.Collection;
-
 @Service
 @Slf4j
 public class FriendshipService {

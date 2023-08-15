@@ -3,8 +3,6 @@ package ru.yandex.practicum.filmorate.storage.friendship;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 
-import java.util.Collection;
-
 public interface FriendshipStorage {
 
     void addFriend(int userId, int friendId, FriendshipStatus friendshipStatus);
