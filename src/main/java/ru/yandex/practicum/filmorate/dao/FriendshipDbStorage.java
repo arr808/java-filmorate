@@ -4,8 +4,6 @@ import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.storage.friendship.FriendshipStorage;
 
-import java.util.Collection;
-
 public interface FriendshipDbStorage extends FriendshipStorage {
 
     void addFriend(int userId, int friendId, FriendshipStatus friendshipStatus);
