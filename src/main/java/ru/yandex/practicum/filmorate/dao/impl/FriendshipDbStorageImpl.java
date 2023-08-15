@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Collection;
 
 @Component
 @Qualifier("FriendshipDbStorageImpl")
