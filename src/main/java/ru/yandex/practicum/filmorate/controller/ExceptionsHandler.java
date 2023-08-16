@@ -10,7 +10,10 @@ import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.custom_exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
-@RestControllerAdvice(assignableTypes = {FilmController.class, UserController.class})
+@RestControllerAdvice(assignableTypes = {FilmController.class,
+        UserController.class,
+        GenreController.class,
+        MpaController.class})
 public class ExceptionsHandler {
 
     @ExceptionHandler

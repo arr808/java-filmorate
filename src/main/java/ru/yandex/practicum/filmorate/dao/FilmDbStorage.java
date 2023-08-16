@@ -1,10 +1,11 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.dao;
+
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.List;
 
-import ru.yandex.practicum.filmorate.model.Film;
-
-public interface FilmStorage {
+public interface FilmDbStorage extends FilmStorage {
 
     Film add(Film film);
 

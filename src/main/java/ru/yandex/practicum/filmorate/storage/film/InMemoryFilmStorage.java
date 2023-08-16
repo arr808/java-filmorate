@@ -6,8 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.custom_exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -56,5 +58,13 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film getById(int id) {
         log.trace("Отправлен фильм - {}", films.get(id));
         return films.get(id);
+    }
+
+    @Override
+    public List<Film> getPopular(int size) {
+        return getAll().stream()
+                .sorted(Comparator.comparing(Film::getLikeCount).reversed())
+                .limit(size)
+                .collect(Collectors.toList());
     }
 }
